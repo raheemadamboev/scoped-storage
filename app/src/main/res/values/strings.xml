@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Scoped Storage</string>
+    <string name="choose_audio_media">Choose audio media</string>
+    <string name="play_audio_note">Choose audio file using system picker with the help of intent actions. And plays it via exoplayer by picked uri. No any permissions are required for this action.</string>
+    <string name="choose_image_media">Choose image media</string>
+    <string name="choose_image_note">Choose image file using system picker with the help of intent actions. And displays the image in the app using Glide. No permissions are required for this action.</string>
+    <string name="create_random_file">Create random file</string>
+    <string name="create_random_file_downloads_note">Create random named file in downloads folder. No permissions are required for this action.</string>
 </resources>
