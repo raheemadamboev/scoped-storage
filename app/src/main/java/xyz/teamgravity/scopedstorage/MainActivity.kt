@@ -82,6 +82,7 @@ class MainActivity : AppCompatActivity() {
         onChooseAudio()
         onChooseImage()
         onCreateFileDownloads()
+        onCreateFileCustom()
     }
 
     private fun onChooseAudio() {
@@ -110,6 +111,16 @@ class MainActivity : AppCompatActivity() {
         binding.createFileDownloadB.setOnClickListener {
             val downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             val raheem = File(downloads, "raheem")
+            if (!raheem.exists()) raheem.mkdir()
+            val randomFile = File(raheem, "${Random().nextInt(9999)}.txt")
+            randomFile.writeText("Hello Android!")
+        }
+    }
+
+    private fun onCreateFileCustom() {
+        binding.createFileCustomB.setOnClickListener {
+            val root = Environment.getExternalStorageDirectory()
+            val raheem = File(root, "raheem")
             if (!raheem.exists()) raheem.mkdir()
             val randomFile = File(raheem, "${Random().nextInt(9999)}.txt")
             randomFile.writeText("Hello Android!")
