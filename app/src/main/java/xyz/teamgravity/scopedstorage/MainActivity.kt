@@ -1,10 +1,14 @@
 package xyz.teamgravity.scopedstorage
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.provider.Settings
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -24,6 +28,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var audioPickerLauncher: ActivityResultLauncher<Intent>
     private lateinit var imagePickerLauncher: ActivityResultLauncher<Intent>
+    private lateinit var manageExternalStorageLauncher: ActivityResultLauncher<Intent>
 
     private lateinit var exoplayer: ExoPlayer
 
@@ -40,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     private fun launcher() {
         audioPickerLauncher()
         imagePickerLauncher()
+        manageExternalStorageLauncher()
     }
 
     private fun lateInIt() {
@@ -52,6 +58,13 @@ class MainActivity : AppCompatActivity() {
             true
         )
         exoplayer.setHandleAudioBecomingNoisy(true)
+    }
+
+    private fun button() {
+        onChooseAudio()
+        onChooseImage()
+        onCreateFileDownloads()
+        onCreateFileCustom()
     }
 
     private fun audioPickerLauncher() {
@@ -78,11 +91,41 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun button() {
-        onChooseAudio()
-        onChooseImage()
-        onCreateFileDownloads()
-        onCreateFileCustom()
+    private fun manageExternalStorageLauncher() {
+        manageExternalStorageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            // TODO it never returns RESULT_OK even though user gives the special permission
+            println("raheem: ${result.resultCode == RESULT_OK}")
+            if (result.resultCode != RESULT_OK) return@registerForActivityResult
+            createFileCustomClick()
+        }
+    }
+
+    private fun createFileCustomLocation() {
+        val root = Environment.getExternalStorageDirectory()
+        val raheem = File(root, "raheem")
+        if (!raheem.exists()) raheem.mkdir()
+        val randomFile = File(raheem, "${Random().nextInt(9999)}.txt")
+        randomFile.writeText("Hello Android!")
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun isManageExternalStorageAllowed(): Boolean {
+        return Environment.isExternalStorageManager()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun requestManageExternalStorage() {
+        manageExternalStorageLauncher.launch(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
+    }
+
+    private fun createFileCustomClick() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!isManageExternalStorageAllowed()) {
+                requestManageExternalStorage()
+                return
+            }
+        }
+        createFileCustomLocation()
     }
 
     private fun onChooseAudio() {
@@ -119,11 +162,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun onCreateFileCustom() {
         binding.createFileCustomB.setOnClickListener {
-            val root = Environment.getExternalStorageDirectory()
-            val raheem = File(root, "raheem")
-            if (!raheem.exists()) raheem.mkdir()
-            val randomFile = File(raheem, "${Random().nextInt(9999)}.txt")
-            randomFile.writeText("Hello Android!")
+            createFileCustomClick()
         }
     }
 }
